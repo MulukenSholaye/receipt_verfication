@@ -19,6 +19,8 @@ This is a single-page web application that simulates the process of verifying a 
 * Login/Signup: Nav*igate to the login or signup page to see the animated forms.
 
 # Verify a Receipt:
+![invoice applicaion](https://github.com/MulukenSholaye/receipt_verfication/blob/861217bb4b8c346a83f38232bba1d55f188d3cc8/shipping-document-laptop-connection-homepage_53876-138115.jpg)
+
 
 * Manual Entry: Fill out the form with a receipt ID, store name, and total amount. The app will check these details against its mock database.
 
@@ -34,3 +36,13 @@ This is a single-page web application that simulates the process of verifying a 
 * JavaScript: Powers all interactive elements, including data simulation, form handling, and chart generation.
 
 # Screenshots
+![login/signup](https://github.com/MulukenSholaye/receipt_verfication/blob/220d920d764e83c8a0e27ceda5090cd6d638eee1/screenshots/Screenshot%20from%202025-09-24%2011-41-14.png)
+![login/signup](https://github.com/MulukenSholaye/receipt_verfication/blob/220d920d764e83c8a0e27ceda5090cd6d638eee1/screenshots/Screenshot%20from%202025-09-24%2011-40-03.png)
+![login/signup](https://github.com/MulukenSholaye/receipt_verfication/blob/220d920d764e83c8a0e27ceda5090cd6d638eee1/screenshots/Screenshot%20from%202025-09-24%2011-37-55.png)
+![login/signup](https://github.com/MulukenSholaye/receipt_verfication/blob/220d920d764e83c8a0e27ceda5090cd6d638eee1/screenshots/Screenshot%20from%202025-09-24%2011-41-14.png)
+![login/signup](https://github.com/MulukenSholaye/receipt_verfication/blob/220d920d764e83c8a0e27ceda5090cd6d638eee1/screenshots/Screenshot%20from%202025-09-24%2011-34-57.png)
+![login/signup](https://github.com/MulukenSholaye/receipt_verfication/blob/220d920d764e83c8a0e27ceda5090cd6d638eee1/screenshots/Screenshot%20from%202025-09-24%2011-29-30.png)
+![login/signup](https://github.com/MulukenSholaye/receipt_verfication/blob/220d920d764e83c8a0e27ceda5090cd6d638eee1/screenshots/Screenshot%20from%202025-09-24%2011-24-36.png)
+![login/signup](https://github.com/MulukenSholaye/receipt_verfication/blob/220d920d764e83c8a0e27ceda5090cd6d638eee1/screenshots/Screenshot%20from%202025-09-24%2011-24-08.png)
+
+
