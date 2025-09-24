@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receipt Analytics Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .card {
+            background-color: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+
+    <div class="max-w-7xl mx-auto space-y-8">
+
+        <!-- Header -->
+        <header class="text-center sm:text-left">
+            <h1 class="text-4xl font-bold text-gray-800">Receipt Analytics Dashboard</h1>
+            <p class="text-gray-500 mt-2">Insightful metrics and trends on your spending habits.</p>
+        </header>
+
+        <!-- Metric Cards -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="card p-6 flex items-center space-x-4">
+                <div class="w-12 h-12 rounded-full bg-indigo-500 text-white flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m4 0h1m4-12H3a2 2 0 00-2 2v10a2 2 0 002 2h18a2 2 0 002-2V5a2 2 0 00-2-2z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500">Total Receipts</p>
+                    <p class="text-2xl font-bold text-gray-900">1,245</p>
+                </div>
+            </div>
+            
+            <div class="card p-6 flex items-center space-x-4">
+                <div class="w-12 h-12 rounded-full bg-green-500 text-white flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 2a10 10 0 100 20 10 10 0 000-20z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500">Average Spend</p>
+                    <p class="text-2xl font-bold text-gray-900">$45.32</p>
+                </div>
+            </div>
+
+            <div class="card p-6 flex items-center space-x-4">
+                <div class="w-12 h-12 rounded-full bg-yellow-500 text-white flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500">Top Category</p>
+                    <p class="text-2xl font-bold text-gray-900">Groceries</p>
+                </div>
+            </div>
+
+            <div class="card p-6 flex items-center space-x-4">
+                <div class="w-12 h-12 rounded-full bg-red-500 text-white flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 9.5a1.5 1.5 0 01-1.5-1.5V6a1.5 1.5 0 011.5-1.5h2a1.5 1.5 0 011.5 1.5v2a1.5 1.5 0 01-1.5 1.5h-2z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 15a1.5 1.5 0 01-1.5-1.5v-2a1.5 1.5 0 011.5-1.5h2a1.5 1.5 0 011.5 1.5v2a1.5 1.5 0 01-1.5 1.5h-2z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M7 21a1.5 1.5 0 01-1.5-1.5v-2a1.5 1.5 0 011.5-1.5h2a1.5 1.5 0 011.5 1.5v2a1.5 1.5 0 01-1.5 1.5h-2z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500">Predicted Spend</p>
+                    <p class="text-2xl font-bold text-gray-900">$5,890</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Charts Section -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="card p-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Monthly Spending Trends</h2>
+                <canvas id="monthly-spend-chart"></canvas>
+            </div>
+            <div class="card p-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Category Spending Projections</h2>
+                <canvas id="category-projection-chart"></canvas>
+            </div>
+        </section>
+
+        <!-- Data Table Section -->
+        <section class="card p-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Recent Receipts</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tl-lg">Date</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Store</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tr-lg">Category</th>
+                        </tr>
+                    </thead>
+                    <tbody id="receipts-table-body" class="bg-white divide-y divide-gray-200">
+                        <!-- Table rows will be inserted here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        // Mock data for the dashboard
+        const mockReceipts = [
+            { date: '2023-09-20', store: 'Gourmet Groceries', amount: 35.75, category: 'Groceries' },
+            { date: '2023-09-19', store: 'Tech Gadgets', amount: 150.00, category: 'Electronics' },
+            { date: '2023-09-18', store: 'Coffee Shop', amount: 4.50, category: 'Food & Drink' },
+            { date: '2023-09-17', store: 'Awesome Retail', amount: 88.20, category: 'Apparel' },
+            { date: '2023-09-16', store: 'Pharmacy', amount: 12.50, category: 'Health' },
+            { date: '2023-09-15', store: 'Gourmet Groceries', amount: 62.10, category: 'Groceries' },
+        ];
+
+        // Monthly spending data
+        const monthlySpendData = {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+            datasets: [{
+                label: 'Monthly Spending ($)',
+                data: [1200, 1500, 1350, 1700, 1650, 2000, 1800, 2200, 2100],
+                borderColor: '#4f46e5',
+                backgroundColor: '#a5b4fc',
+                tension: 0.3,
+                fill: true,
+            }]
+        };
+
+        // Category projection data
+        const categoryProjectionData = {
+            labels: ['Groceries', 'Electronics', 'Apparel', 'Restaurants', 'Utilities'],
+            datasets: [{
+                label: 'Projected Spend ($)',
+                data: [2500, 1200, 800, 1500, 1000],
+                backgroundColor: [
+                    '#10b981', '#f59e0b', '#6366f1', '#ef4444', '#3b82f6'
+                ],
+                borderColor: 'white',
+                borderWidth: 2
+            }]
+        };
+
+        // Chart configuration
+        const lineConfig = {
+            type: 'line',
+            data: monthlySpendData,
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        };
+
+        const barConfig = {
+            type: 'bar',
+            data: categoryProjectionData,
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        };
+
+        // Render charts on page load
+        window.onload = function() {
+            const monthlyChartCanvas = document.getElementById('monthly-spend-chart');
+            const categoryChartCanvas = document.getElementById('category-projection-chart');
+
+            new Chart(monthlyChartCanvas, lineConfig);
+            new Chart(categoryChartCanvas, barConfig);
+
+            // Populate the data table
+            const tableBody = document.getElementById('receipts-table-body');
+            mockReceipts.forEach(receipt => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-100 transition-colors duration-200';
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${receipt.date}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${receipt.store}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">$${receipt.amount.toFixed(2)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${receipt.category}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        };
+    </script>
+</body>
+</html>
+

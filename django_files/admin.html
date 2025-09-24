@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Dashboard - E-Learning Platform</title>
+    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
+    <style>
+        @import url('[https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap](https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap)');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .progress-bar {
+            transition: width 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <svg class="w-8 h-8 text-indigo-600" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2L2 7v10l10 5 10-5V7L12 2zM4 9l8 4 8-4v6l-8 4-8-4V9z"/>
+                </svg>
+                <span class="text-2xl font-bold text-gray-800">E-Learn</span>
+            </div>
+            <nav class="hidden md:flex space-x-6 font-medium">
+                <a href="{% url 'browse' %}" class="text-gray-600 hover:text-gray-800 transition-colors duration-200">Courses</a>
+                <a href="{% url 'dashboard' %}" class="text-indigo-600 hover:text-indigo-800 transition-colors duration-200">Dashboard</a>
+            </nav>
+            <a href="#" class="hidden md:inline-block px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors duration-200">Log Out</a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <h1 class="text-4xl md:text-5xl font-extrabold text-center mb-10">Welcome, {{ user_name }}!</h1>
+
+        <!-- Performance Metrics Section -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold mb-4 text-center md:text-left">Performance Overview</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Metric Card 1 -->
+                <div class="bg-white rounded-2xl shadow-lg p-6 flex items-center space-x-4">
+                    <div class="p-3 bg-indigo-100 rounded-full">
+                        <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.483 9.232 5 7.5 5S4.168 5.483 3 6.253v13C4.168 18.483 5.768 18 7.5 18s3.332.483 4.5 1.253m0-13C13.168 5.483 14.768 5 16.5 5s3.332.483 4.5 1.253v13C19.832 18.483 18.232 18 16.5 18s-3.332.483-4.5 1.253"></path></svg>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 text-sm">Courses Enrolled</p>
+                        <p class="text-3xl font-bold">{{ enrolled_count }}</p>
+                    </div>
+                </div>
+                <!-- Metric Card 2 -->
+                <div class="bg-white rounded-2xl shadow-lg p-6 flex items-center space-x-4">
+                    <div class="p-3 bg-green-100 rounded-full">
+                        <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 text-sm">Courses Completed</p>
+                        <p class="text-3xl font-bold">{{ completed_count }}</p>
+                    </div>
+                </div>
+                <!-- Metric Card 3 -->
+                <div class="bg-white rounded-2xl shadow-lg p-6 flex items-center space-x-4">
+                    <div class="p-3 bg-yellow-100 rounded-full">
+                        <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 text-sm">Average Score</p>
+                        <p class="text-3xl font-bold">{{ avg_score }}%</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Enrolled Courses Section -->
+        <section>
+            <h2 class="text-2xl font-bold mb-4 text-center md:text-left">Your Enrolled Courses</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {% for course in user_courses %}
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col sm:flex-row">
+                    <img src="[https://placehold.co/300x200/1e293b/white?text=](https://placehold.co/300x200/1e293b/white?text=){{ course.course.name|urlencode }}" alt="{{ course.course.name }} Course" class="w-full sm:w-48 h-48 sm:h-auto object-cover">
+                    <div class="p-6 flex-1 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-xl font-bold mb-2">{{ course.course.name }}</h3>
+                            <p class="text-gray-600 text-sm">{{ course.course.description }}</p>
+                        </div>
+                        <div class="mt-4">
+                            <p class="text-sm font-medium text-gray-700 mb-1">Progress: <span id="progress-{{ course.id }}">{{ course.progress_percentage }}%</span></p>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-indigo-600 h-2.5 rounded-full progress-bar" style="width: {{ course.progress_percentage }}%"></div>
+                            </div>
+                            <a href="{% url 'course_page' course.course.id %}" class="block mt-4 w-full text-center bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition-colors duration-200">
+                                Continue Course
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-span-1 md:col-span-2 text-center text-gray-500 py-10">
+                    <p>You are not enrolled in any courses yet.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white mt-12 py-8 text-center text-gray-500 text-sm shadow-inner">
+        &copy; 2024 E-Learn. All rights reserved.
+    </footer>
+
+</body>
+</html>

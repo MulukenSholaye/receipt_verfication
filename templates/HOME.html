@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receipt Verifier</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .container {
+            max-width: 500px;
+        }
+        .animate-pulse-slow {
+            animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse-slow {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: .5;
+            }
+        }
+        #scanner-video {
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <div class="container bg-white p-8 rounded-2xl shadow-xl space-y-6">
+
+        <!-- Header -->
+        <div class="text-center">
+            <h1 class="text-3xl font-bold text-gray-800">Receipt Verifier</h1>
+            <p class="text-gray-500 mt-2">Enter receipt details, scan a QR code, or upload an image to simulate a verification process.</p>
+        </div>
+        
+        <!-- Action Buttons Section (Horizontally Stacked) -->
+        <div class="flex flex-col sm:flex-row justify-between space-y-4 sm:space-y-0 sm:space-x-4">
+            <!-- QR Code Scanner Button -->
+            <button id="scan-qr-button" class="w-full bg-green-600 text-white font-semibold py-3 rounded-lg shadow-md hover:bg-green-700 transition-colors duration-200 flex items-center justify-center space-x-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4m16 0L4 12" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 12a8 8 0 1116 0m-8 0a4 4 0 100-8 4 4 0 000 8z" />
+                </svg>
+                <span>Scan QR Code</span>
+            </button>
+
+            <!-- File Upload Button -->
+            <input type="file" id="receipt-upload" class="hidden" accept="image/*">
+            <button id="upload-button" class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-lg shadow-md hover:bg-indigo-700 transition-colors duration-200 flex items-center justify-center space-x-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-4-4v0a4 4 0 014-4h4l1-1h4l1-1h4a4 4 0 014 4v0a4 4 0 01-4 4h-4l-1 1H7z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 17a4 4 0 01-4 4H8a4 4 0 01-4-4v-4" />
+                </svg>
+                <span>Upload Receipt</span>
+            </button>
+        </div>
+
+        <!-- QR Code Scanner Section -->
+        <div id="scanner-section" class="flex flex-col items-center space-y-4 hidden">
+            <div id="scanner-container" class="w-full relative">
+                <video id="scanner-video" class="w-full h-auto rounded-xl"></video>
+                <canvas id="scanner-canvas" class="hidden"></canvas>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="w-3/4 h-3/4 border-4 border-dashed border-white rounded-lg opacity-75"></div>
+                </div>
+            </div>
+            <p id="scan-status" class="text-gray-500">Point your camera at a QR code.</p>
+        </div>
+
+        <!-- Manual Entry Separator -->
+        <div class="relative flex items-center mt-6">
+            <div class="flex-grow border-t border-gray-300"></div>
+            <span class="flex-shrink mx-4 text-gray-400 text-sm">or enter manually</span>
+            <div class="flex-grow border-t border-gray-300"></div>
+        </div>
+
+        <!-- Verification Form -->
+        <form id="verify-form" class="space-y-4">
+            <div>
+                <label for="receipt-id" class="block text-sm font-medium text-gray-700">Receipt ID</label>
+                <input type="text" id="receipt-id" class="mt-1 block w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., A1B2C3D4">
+            </div>
+            <div>
+                <label for="store-name" class="block text-sm font-medium text-gray-700">Store Name</label>
+                <input type="text" id="store-name" class="mt-1 block w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., Awesome Retail">
+            </div>
+            <div>
+                <label for="total-amount" class="block text-sm font-medium text-gray-700">Total Amount ($)</label>
+                <input type="number" step="0.01" id="total-amount" class="mt-1 block w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., 55.75">
+            </div>
+            <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg shadow-md hover:bg-blue-700 transition-colors duration-200">
+                Verify Receipt
+            </button>
+        </form>
+
+        <!-- OCR Page Section -->
+        <div id="ocr-page" class="hidden text-center mt-6 space-y-6">
+            <h2 class="text-2xl font-bold text-gray-800">Extracted Receipt Information</h2>
+            <div class="bg-gray-200 p-2 rounded-lg shadow-inner">
+                <img id="ocr-image" src="" alt="Uploaded receipt" class="w-full h-auto rounded-lg">
+            </div>
+            <div class="space-y-2 text-left p-4 bg-gray-50 rounded-lg">
+                <p class="text-sm text-gray-500 font-semibold">Extracted Details:</p>
+                <p class="text-gray-700"><strong>Receipt ID:</strong> <span id="ocr-id"></span></p>
+                <p class="text-gray-700"><strong>Store Name:</strong> <span id="ocr-store"></span></p>
+                <p class="text-gray-700"><strong>Total Amount:</strong> <span id="ocr-amount"></span></p>
+            </div>
+            <button id="continue-verification-button" class="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg shadow-md hover:bg-blue-700 transition-colors duration-200">
+                Continue to Verification
+            </button>
+        </div>
+
+
+        <!-- Result Section (hidden initially) -->
+        <div id="result-section" class="hidden text-center mt-6">
+            <!-- Loading state -->
+            <div id="loading-state" class="flex flex-col items-center justify-center space-y-4 p-6 bg-blue-50 rounded-lg">
+                <div class="h-12 w-12 rounded-full bg-blue-200 animate-pulse-slow"></div>
+                <p id="loading-text" class="text-blue-600 font-semibold">Verifying receipt...</p>
+            </div>
+
+            <!-- Verified/Rejected result -->
+            <div id="verification-result" class="hidden">
+                <div id="result-icon-container" class="w-20 h-20 mx-auto rounded-full flex items-center justify-center text-white text-4xl mb-4">
+                    <!-- Icon will be inserted here -->
+                </div>
+                <h2 id="result-title" class="text-2xl font-bold mb-2"></h2>
+                <p id="result-message" class="text-gray-600 mb-4"></p>
+                <div id="match-details" class="space-y-2 text-left p-4 bg-gray-50 rounded-lg">
+                    <p class="text-sm text-gray-500 font-semibold">Matching Details:</p>
+                    <p class="text-gray-700"><strong>Receipt ID:</strong> <span id="match-id"></span></p>
+                    <p class="text-gray-700"><strong>Store Name:</strong> <span id="match-store"></span></p>
+                    <p class="text-gray-700"><strong>Total Amount:</strong> <span id="match-amount"></span></p>
+                </div>
+                <button id="reset-button" class="mt-6 bg-gray-200 text-gray-800 font-semibold py-2 px-6 rounded-lg hover:bg-gray-300 transition-colors duration-200">
+                    Verify another
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.0.0/dist/jsQR.js"></script>
+    <script>
+        const form = document.getElementById('verify-form');
+        const receiptIdInput = document.getElementById('receipt-id');
+        const storeNameInput = document.getElementById('store-name');
+        const totalAmountInput = document.getElementById('total-amount');
+
+        const resultSection = document.getElementById('result-section');
+        const loadingState = document.getElementById('loading-state');
+        const verificationResult = document.getElementById('verification-result');
+        const resultIconContainer = document.getElementById('result-icon-container');
+        const resultTitle = document.getElementById('result-title');
+        const resultMessage = document.getElementById('result-message');
+        const resetButton = document.getElementById('reset-button');
+        const loadingText = document.getElementById('loading-text');
+
+        const matchDetails = document.getElementById('match-details');
+        const matchId = document.getElementById('match-id');
+        const matchStore = document.getElementById('match-store');
+        const matchAmount = document.getElementById('match-amount');
+
+        const scanQrButton = document.getElementById('scan-qr-button');
+        const uploadButton = document.getElementById('upload-button');
+        const receiptUploadInput = document.getElementById('receipt-upload');
+        const scannerSection = document.getElementById('scanner-section');
+        const scannerVideo = document.getElementById('scanner-video');
+        const scannerCanvas = document.getElementById('scanner-canvas');
+        const scannerContext = scannerCanvas.getContext('2d');
+        const scanStatus = document.getElementById('scan-status');
+        let stream = null;
+        
+        const ocrPage = document.getElementById('ocr-page');
+        const ocrImage = document.getElementById('ocr-image');
+        const ocrId = document.getElementById('ocr-id');
+        const ocrStore = document.getElementById('ocr-store');
+        const ocrAmount = document.getElementById('ocr-amount');
+        const continueVerificationButton = document.getElementById('continue-verification-button');
+
+        // Mock database of receipts for verification
+        const receiptsDatabase = [
+            { receiptId: 'ABC-123', storeName: 'Awesome Retail', totalAmount: 55.75 },
+            { receiptId: 'DEF-456', storeName: 'Tech Gadgets', totalAmount: 120.50 },
+            { receiptId: 'GHI-789', storeName: 'Gourmet Groceries', totalAmount: 22.99 },
+            { receiptId: 'JKL-012', storeName: 'Urban Outfitters', totalAmount: 88.00 },
+        ];
+
+
+        // Function to start the QR code scanner
+        async function startScanner() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                scannerVideo.srcObject = stream;
+                scannerVideo.setAttribute("playsinline", true); // Required for iOS
+                scannerVideo.play();
+                scannerSection.classList.remove('hidden');
+                form.classList.add('hidden');
+                ocrPage.classList.add('hidden');
+                loadingText.textContent = "Verifying with QR code...";
+                requestAnimationFrame(tick);
+            } catch (err) {
+                console.error("Error accessing camera: ", err);
+                scanStatus.textContent = 'Camera access denied or not available. Please use the form below.';
+            }
+        }
+
+        // Function to stop the QR code scanner
+        function stopScanner() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            scannerSection.classList.add('hidden');
+            form.classList.remove('hidden');
+        }
+
+        // Animation loop for scanning QR codes
+        function tick() {
+            if (scannerVideo.readyState === scannerVideo.HAVE_ENOUGH_DATA) {
+                scannerCanvas.height = scannerVideo.videoHeight;
+                scannerCanvas.width = scannerVideo.videoWidth;
+                scannerContext.drawImage(scannerVideo, 0, 0, scannerCanvas.width, scannerCanvas.height);
+                const imageData = scannerContext.getImageData(0, 0, scannerCanvas.width, scannerCanvas.height);
+                const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                    inversionAttempts: "dontInvert",
+                });
+
+                if (code) {
+                    console.log("QR Code detected:", code.data);
+                    try {
+                        const receiptData = JSON.parse(code.data);
+                        if (receiptData.receiptId && receiptData.storeName && receiptData.totalAmount) {
+                            receiptIdInput.value = receiptData.receiptId;
+                            storeNameInput.value = receiptData.storeName;
+                            totalAmountInput.value = receiptData.totalAmount;
+                            stopScanner();
+                            // Trigger the verification automatically
+                            form.dispatchEvent(new Event('submit'));
+                        } else {
+                            scanStatus.textContent = 'Invalid QR code data. Please try again.';
+                        }
+                    } catch (e) {
+                        scanStatus.textContent = 'Invalid QR code format. Please try again.';
+                    }
+                }
+            }
+            if (stream) {
+                requestAnimationFrame(tick);
+            }
+        }
+
+        // Function to simulate a call to an LLM API for image analysis
+        function geminiApiCall(base64Image) {
+            console.log("Simulating API call with image data...");
+            // Simulate network delay and a structured response from the LLM
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    const mockResponse = {
+                        receiptId: 'DEF-456',
+                        storeName: 'Tech Gadgets',
+                        totalAmount: 120.50,
+                    };
+                    resolve(mockResponse);
+                }, 2000);
+            });
+        }
+
+        // Event listener for the QR code scan button
+        scanQrButton.addEventListener('click', () => {
+            stopScanner(); // Ensure any previous scan is stopped
+            resultSection.classList.add('hidden');
+            ocrPage.classList.add('hidden');
+            startScanner();
+        });
+
+        // Event listener for the upload button to trigger the hidden file input
+        uploadButton.addEventListener('click', () => {
+            stopScanner(); // Stop scanner if running
+            resultSection.classList.add('hidden');
+            ocrPage.classList.add('hidden');
+            receiptUploadInput.click();
+        });
+
+        // Event listener for file selection
+        receiptUploadInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const base64Image = e.target.result;
+                
+                resultSection.classList.remove('hidden');
+                loadingState.classList.remove('hidden');
+                verificationResult.classList.add('hidden');
+                form.classList.add('hidden');
+                loadingText.textContent = "Extracting data from receipt...";
+
+                try {
+                    const receiptData = await geminiApiCall(base64Image);
+                    
+                    // Populate OCR page and show it
+                    ocrImage.src = base64Image;
+                    ocrId.textContent = receiptData.receiptId;
+                    ocrStore.textContent = receiptData.storeName;
+                    ocrAmount.textContent = `$${receiptData.totalAmount.toFixed(2)}`;
+
+                    loadingState.classList.add('hidden');
+                    ocrPage.classList.remove('hidden');
+
+                    // Pre-fill the form with the extracted data
+                    receiptIdInput.value = receiptData.receiptId;
+                    storeNameInput.value = receiptData.storeName;
+                    totalAmountInput.value = receiptData.totalAmount;
+
+                } catch (error) {
+                    console.error("Image processing failed:", error);
+                    loadingState.classList.add('hidden');
+                    verificationResult.classList.remove('hidden');
+                    resultIconContainer.innerHTML = '&#10007;'; // X
+                    resultIconContainer.classList.remove('bg-green-500');
+                    resultIconContainer.classList.add('bg-red-500');
+                    resultTitle.textContent = 'Extraction Failed';
+                    resultTitle.classList.remove('text-green-600');
+                    resultTitle.classList.add('text-red-600');
+                    resultMessage.textContent = 'Could not extract data from the image. Please try again or enter manually.';
+                    matchDetails.classList.add('hidden');
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+        
+        continueVerificationButton.addEventListener('click', () => {
+            ocrPage.classList.add('hidden');
+            // Trigger the verification automatically using the pre-filled form
+            form.dispatchEvent(new Event('submit'));
+        });
+
+        // Event listener for the form submission
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Show loading state
+            resultSection.classList.remove('hidden');
+            loadingState.classList.remove('hidden');
+            verificationResult.classList.add('hidden');
+            form.classList.add('hidden');
+            loadingText.textContent = "Searching for matching receipt...";
+            
+            // Stop scanner if it's running
+            stopScanner();
+
+            // Simulate API call delay for verification
+            setTimeout(() => {
+                const receiptId = receiptIdInput.value.trim();
+                const totalAmount = parseFloat(totalAmountInput.value);
+                const storeName = storeNameInput.value.trim().toLowerCase();
+                
+                let matchedReceipt = null;
+
+                // Search for a matching receipt in the mock database
+                for (const receipt of receiptsDatabase) {
+                    if (
+                        receipt.receiptId === receiptId &&
+                        receipt.storeName.toLowerCase() === storeName &&
+                        receipt.totalAmount === totalAmount
+                    ) {
+                        matchedReceipt = receipt;
+                        break;
+                    }
+                }
+
+                loadingState.classList.add('hidden');
+                verificationResult.classList.remove('hidden');
+                
+                if (matchedReceipt) {
+                    // Verified state
+                    resultIconContainer.innerHTML = '&#10003;'; // Checkmark
+                    resultIconContainer.classList.remove('bg-red-500');
+                    resultIconContainer.classList.add('bg-green-500');
+                    resultTitle.textContent = 'Receipt Verified!';
+                    resultTitle.classList.remove('text-red-600');
+                    resultTitle.classList.add('text-green-600');
+                    resultMessage.textContent = 'Invoice verified. The details match our records.';
+                    
+                    // Display matched details
+                    matchId.textContent = matchedReceipt.receiptId;
+                    matchStore.textContent = matchedReceipt.storeName;
+                    matchAmount.textContent = `$${matchedReceipt.totalAmount.toFixed(2)}`;
+                    matchDetails.classList.remove('hidden');
+
+                } else {
+                    // Rejected state
+                    resultIconContainer.innerHTML = '&#10007;'; // X
+                    resultIconContainer.classList.remove('bg-green-500');
+                    resultIconContainer.classList.add('bg-red-500');
+                    resultTitle.textContent = 'Verification Failed';
+                    resultTitle.classList.remove('text-green-600');
+                    resultTitle.classList.add('text-red-600');
+                    resultMessage.textContent = 'Receipt details could not be validated. Please check your information.';
+                    matchDetails.classList.add('hidden');
+                }
+
+            }, 2000); // 2-second delay
+        });
+
+        resetButton.addEventListener('click', () => {
+            resultSection.classList.add('hidden');
+            form.classList.remove('hidden');
+            form.reset();
+        });
+    </script>
+</body>
+</html>
+

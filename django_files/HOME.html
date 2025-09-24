@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Dashboard - E-Learn</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+        .progress-bar {
+            height: 8px;
+            border-radius: 9999px;
+            background-color: #d1d5db;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 9999px;
+            background-color: #4f46e5;
+            transition: width 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <svg class="w-8 h-8 text-indigo-600" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2L2 7v10l10 5 10-5V7L12 2zM4 9l8 4 8-4v6l-8 4-8-4V9z"/>
+                </svg>
+                <span class="text-2xl font-bold text-gray-800">E-Learn</span>
+            </div>
+            <nav class="hidden md:flex space-x-6 font-medium">
+                <a href="#" class="text-gray-600 hover:text-gray-800 transition-colors duration-200">Browse Courses</a>
+                <a href="#" class="text-indigo-600 font-semibold transition-colors duration-200">My Dashboard</a>
+                <a href="#" class="text-gray-600 hover:text-gray-800 transition-colors duration-200">Ranking</a>
+            </nav>
+            <a href="#" class="hidden md:inline-block px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors duration-200">Log Out</a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 flex-1 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Main content area -->
+        <div class="lg:col-span-2 space-y-8">
+            <!-- My Courses Section -->
+            <section class="bg-white rounded-2xl shadow-lg p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">My Enrolled Courses</h2>
+                <div id="enrolled-courses-list" class="space-y-4">
+                    <!-- Course cards will be populated here -->
+                </div>
+            </section>
+
+            <!-- Performance Overview Section -->
+            <section class="bg-white rounded-2xl shadow-lg p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Performance Overview</h2>
+                <canvas id="performance-chart" class="w-full h-80"></canvas>
+            </section>
+
+        </div>
+
+        <!-- Sidebar for recommendations and recent activity -->
+        <aside class="lg:col-span-1 space-y-8">
+            <!-- Improvement Recommendations Section -->
+            <section class="bg-white rounded-2xl shadow-lg p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">Improvement Recommendations</h2>
+                <ul id="recommendations-list" class="space-y-4 text-gray-700">
+                    <!-- Recommendations will be populated here -->
+                </ul>
+            </section>
+            
+            <!-- Recent Activity Section -->
+            <section class="bg-white rounded-2xl shadow-lg p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">Recent Activity</h2>
+                <ul id="recent-activity-list" class="space-y-4 text-gray-700">
+                    <!-- Recent activity items will be populated here -->
+                </ul>
+            </section>
+        </aside>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white mt-12 py-8 text-center text-gray-500 text-sm shadow-inner">
+        &copy; 2024 E-Learn. All rights reserved.
+    </footer>
+
+    <script>
+        const mockData = {
+            enrolledCourses: [
+                { id: 1, name: 'Introduction to Web Development', progress: 75, description: 'Learn the fundamentals of HTML, CSS, and JavaScript to build your first websites.' },
+                { id: 2, name: 'Data Structures & Algorithms', progress: 40, description: 'Master essential algorithms and data structures to solve complex programming problems.' },
+                { id: 3, name: 'Modern React & Redux', progress: 90, description: 'Dive deep into React with hooks, state management, and modern component design.' },
+            ],
+            examScores: [
+                { subject: 'HTML', score: 85 },
+                { subject: 'CSS', score: 92 },
+                { subject: 'JavaScript', score: 78 },
+                { subject: 'React', score: 65 },
+                { subject: 'Node.js', score: 70 },
+            ],
+            recommendations: [
+                'Review the core concepts of JavaScript functions and asynchronous operations.',
+                'Practice more with complex CSS layouts using Flexbox and Grid.',
+                'Take a refresher course on React state management with the `useState` hook.',
+            ],
+            recentActivity: [
+                'Completed "Flexbox Fundamentals" topic in Modern CSS.',
+                'Started "Introduction to Databases" course.',
+                'Reviewed "JavaScript Closures" lecture video.',
+            ],
+        };
+
+        const enrolledCoursesList = document.getElementById('enrolled-courses-list');
+        const recommendationsList = document.getElementById('recommendations-list');
+        const recentActivityList = document.getElementById('recent-activity-list');
+        const performanceChartCanvas = document.getElementById('performance-chart');
+        const ctx = performanceChartCanvas.getContext('2d');
+
+        // Function to render enrolled courses
+        function renderEnrolledCourses() {
+            enrolledCoursesList.innerHTML = '';
+            mockData.enrolledCourses.forEach(course => {
+                const card = document.createElement('div');
+                card.className = 'bg-gray-50 p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200';
+                card.innerHTML = `
+                    <h3 class="text-xl font-semibold mb-2">${course.name}</h3>
+                    <p class="text-sm text-gray-600 mb-4">${course.description}</p>
+                    <div class="flex items-center space-x-2 mb-2">
+                        <div class="progress-bar w-full">
+                            <div class="progress-bar-fill" style="width: ${course.progress}%;"></div>
+                        </div>
+                        <span class="text-xs font-medium text-gray-500 w-10 text-right">${course.progress}%</span>
+                    </div>
+                    <a href="#" class="text-sm text-indigo-600 hover:text-indigo-800 font-semibold transition-colors duration-200">Continue Course &rarr;</a>
+                `;
+                enrolledCoursesList.appendChild(card);
+            });
+        }
+
+        // Function to render the performance chart (simple bar chart)
+        function renderPerformanceChart() {
+            const scores = mockData.examScores;
+            const labels = scores.map(s => s.subject);
+            const data = scores.map(s => s.score);
+
+            ctx.clearRect(0, 0, performanceChartCanvas.width, performanceChartCanvas.height);
+
+            const chartWidth = performanceChartCanvas.width;
+            const chartHeight = performanceChartCanvas.height;
+            const barWidth = chartWidth / (data.length * 2);
+            const maxScore = 100;
+
+            // Draw bars
+            data.forEach((score, index) => {
+                const barHeight = (score / maxScore) * chartHeight * 0.8; // Scale to 80% of canvas height
+                const x = index * barWidth * 2 + barWidth / 2;
+                const y = chartHeight - barHeight - 20; // 20px margin from bottom
+                ctx.fillStyle = '#4f46e5';
+                ctx.fillRect(x, y, barWidth, barHeight);
+
+                // Draw labels
+                ctx.fillStyle = '#1f2937';
+                ctx.font = '12px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText(labels[index], x + barWidth / 2, chartHeight - 5);
+                ctx.fillText(`${score}%`, x + barWidth / 2, y - 5);
+            });
+        }
+
+        // Function to render recommendations and recent activity
+        function renderLists() {
+            recommendationsList.innerHTML = mockData.recommendations.map(item => `
+                <li class="flex items-start">
+                    <svg class="w-5 h-5 text-indigo-500 mr-2 mt-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span>${item}</span>
+                </li>
+            `).join('');
+
+            recentActivityList.innerHTML = mockData.recentActivity.map(item => `
+                <li class="flex items-start">
+                    <svg class="w-5 h-5 text-gray-400 mr-2 mt-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+                        <path fill-rule="evenodd" d="M4 5a2 2 0 012-2H4a2 2 0 00-2 2v2a2 2 0 002 2h2V5zm6 0a2 2 0 012-2h4a2 2 0 012 2v2a2 2 0 01-2 2h-4a2 2 0 01-2-2V5zm-2 2V5h2v2H8zm-6 2v2h2v-2H2zm8 0v2h2v-2h-2zm-6 2v2h2v-2H2zm8 0v2h2v-2h-2zm-6 2v2h2v-2H2zm8 0v2h2v-2h-2zm6 2v2h2v-2h-2z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span>${item}</span>
+                </li>
+            `).join('');
+        }
+
+        // Run functions on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            renderEnrolledCourses();
+            renderPerformanceChart();
+            renderLists();
+        });
+    </script>
+</body>
+</html>
+
