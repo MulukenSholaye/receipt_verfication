@@ -1,7 +1,9 @@
 # Receipt Verification App
 
 This is a single-page web application that simulates the process of verifying a receipt. The app is designed to showcase several modern web development features, including a responsive dashboard, animated login/signup pages, and a simulated OCR process for a receipt image.
+
 ![invoice applicaion](https://github.com/MulukenSholaye/receipt_verfication/blob/e46ec731d6c550f9ee8c211293e630e37b3cd7ed/screenshots/Screenshot%20from%202025-09-24%2011-37-55.png)
+
 # Key Features
 * Dashboard: A dynamic dashboard displaying key metrics, trends, and projections about receipts using cards, graphs, and data tables.
 
